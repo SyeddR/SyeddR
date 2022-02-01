@@ -1,0 +1,808 @@
+---
+openapi: 3.0.2
+info:
+  title: MEC Network API
+  version: "1.0"
+servers:
+- url: https://localhost
+tags:
+- name: RNI API
+  description: subscriber or device experience on radio access network
+- name: Data Performance API
+  description: jitter, packetloss and network congestion of a device
+- name: Location API
+  description: geo-fencing and geo-tracking of a device
+paths:
+  /data_performance/jitter/{userId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Provides Jitter
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/array_jitter'
+  /data_performance/jitter/notify:
+    post:
+      tags:
+      - Data Performance API
+      description: Intent based webhook API to notify application if user packet loss is degraded
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/jitter_webhook'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subscription'
+  /data_performance/jitter/notify/{subscriptionId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Intent based API to notify application if packet loss is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/packet_loss'
+  /data_performance/packet_loss/{userId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Provides packet loss
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/array_packet_loss'
+  /data_performance/packet_loss/notify:
+    post:
+      tags:
+      - Data Performance API
+      description: Intent based webhook API to notify application if user packet loss is degraded
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/packetloss_webhook'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subscription'
+  /data_performance/packet_loss/notify/{subscriptionId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Intent based API to notify application if packet loss is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/packet_loss'
+  /data_performance/network_congestion/{userId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Provides network congestion
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/array_network_congestion'
+  /data_performance/network_congestion/notify:
+    post:
+      tags:
+      - Data Performance API
+      description: Intent based webhook API to notify application if user packet loss is degraded
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/packetloss_webhook'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subscription'
+  /data_performance/network_congestion/notify/{subscriptionId}:
+    get:
+      tags:
+      - Data Performance API
+      description: Intent based API to notify application if packet loss is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/packet_loss'
+  /rni/signal_strength/{userId}:
+    get:
+      tags:
+      - RNI API
+      description: Provides RSRP, RSRQ, SNI values device is exeperiencing **1-1 with edgeai
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/array_signal_strength'
+      servers:
+      - url: http://localhost:8091
+  /rni/signal_strength/notify:
+    post:
+      tags:
+      - RNI API
+      description: Intent based webhook API to notify application if user signal strength is degraded
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ran_webhook'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subscription'
+  /rni/signal_strength/notify/{subscriptionId}:
+    get:
+      tags:
+      - RNI API
+      description: Intent based API to notify application if signal strength is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ran_notification'
+  /rni/throughput/{userId}:
+    get:
+      tags:
+      - RNI API
+      description: Provides estimated downlink and uplink thorughput
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/array_throughput'
+components:
+  schemas:
+    signal_strength:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        min_4g_rsrp:
+          type: number
+        max_4g_rsrp:
+          type: number
+        avg_4g_rsrp:
+          type: number
+        min_4g_rsrq:
+          type: number
+        max_4g_rsrq:
+          type: number
+        avg_4g_rsrq:
+          type: number
+        min_4g_sinr:
+          type: number
+        max_4g_sinr:
+          type: number
+        avg_4g_sinr:
+          type: number
+        min_5g_rsrp:
+          type: number
+        max_5g_rsrp:
+          type: number
+        avg_5g_rsrp:
+          type: number
+        min_5g_rsrq:
+          type: number
+        max_5g_rsrq:
+          type: number
+        avg_5g_rsrq:
+          type: number
+        min_5g_sinr:
+          type: number
+        max_5g_dl_sinr:
+          type: number
+        avg_5g_dl_sinr:
+          type: number
+    array_signal_strength:
+      type: array
+      items:
+        $ref: '#/components/schemas/signal_strength'
+    latency:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        min_rtt:
+          type: number
+        max_rtt:
+          type: number
+        avg_rtt:
+          type: number
+    array_latency:
+      type: array
+      items:
+        $ref: '#/components/schemas/latency'
+    packet_loss:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        dl_retransmission_rate:
+          type: number
+        dl_retransmission_volume_bytes:
+          type: number
+        ul_retransmission_rate:
+          type: number
+        ul_retransmission_volume_bytes:
+          type: number
+    array_packet_loss:
+      type: array
+      items:
+        $ref: '#/components/schemas/packet_loss'
+    throughput:
+      type: object
+      properties:
+        group_start_time:
+          type: string
+          format: date-time
+        group_end_time:
+          type: string
+          format: date-time
+        aggregation_time:
+          type: string
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        estimated_downlink_throughput:
+          type: number
+        estimated_uplink_throughput:
+          type: number
+    array_throughput:
+      type: array
+      items:
+        $ref: '#/components/schemas/throughput'
+    subscription:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+        category:
+          type: string
+        api:
+          type: string
+        notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+    ran_webhook:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        userId:
+          type: string
+        userIdType:
+          type: string
+        aggregation:
+          type: string
+        min_4g_rsrp_threshold:
+          type: number
+        min_4g_rsrq_threshold:
+          type: number
+        min_4g_sinr_threshold:
+          type: number
+        min_5g_rsrp_threshold:
+          type: number
+        min_5g_rsrq_threshold:
+          type: number
+        min_5g_sinr_threshold:
+          type: number
+        notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+        callback_url:
+          type: string
+    jitter_webhook:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        userId:
+          type: string
+        userIdType:
+          type: string
+        aggregation:
+          type: string
+        max_jitter:
+          type: number
+        notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+        callback_url:
+          type: string
+    packetloss_webhook:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        userId:
+          type: string
+        userIdType:
+          type: string
+        aggregation:
+          type: string
+        max_dl_retransmission_threshold:
+          type: number
+        max_ul_retransmission_threshold:
+          type: number
+        notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+        callback_url:
+          type: string
+    congestion_webhook:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        userId:
+          type: string
+        userIdType:
+          type: string
+        aggregation:
+          type: string
+        max_qci_congestion:
+          type: number
+        notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+        callback_url:
+          type: string
+    ran_notification:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        userId:
+          type: string
+        userIdType:
+          type: string
+        aggregation:
+          type: string
+        avg_4g_rsrp:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_4g_rsrp_value:
+          type: number
+        avg_4g_rsrq:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_4g_rsrq_value:
+          type: number
+        avg_4g_sinr:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_4g_sinr_value:
+          type: number
+        avg_5g_rsrp:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_5g_rsrp_value:
+          type: number
+        avg_5g_rsrq:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_5g_rsrq_value:
+          type: number
+        avg_5g_sinr:
+          type: string
+          enum:
+          - good
+          - bad
+        avg_5g_sinr_value:
+          type: number
+    jitter:
+      type: object
+      properties:
+        aggregation_time:
+          type: number
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        jitter:
+          type: string
+    array_jitter:
+      type: array
+      items:
+        $ref: '#/components/schemas/jitter'
+    network_congestion:
+      type: object
+      properties:
+        aggregation_time:
+          type: number
+        msisdn:
+          type: string
+        imei:
+          type: string
+        imsi:
+          type: string
+        qci_congestion:
+          type: number
+    array_network_congestion:
+      type: array
+      items:
+        $ref: '#/components/schemas/jitter'

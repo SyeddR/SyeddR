@@ -1,0 +1,1144 @@
+---
+openapi: 3.0.2
+info:
+  title: MEC Network API
+  version: "1.1"
+servers:
+- url: https://localhost
+tags:
+- name: RNI API
+  description: Radio access network KPIs, by device and aggregated levels, such as signal strength, throughput, retransmission and 5G endc failures ** Device level data requires user's authorization
+  
+- name: Data Plane API
+  description: Data plane KPIs such as latency, jitter, packetloss and network congestion by device and aggregated levels  ** These KPIs are specific to MEC sessions and dependent on MEC monitoring deployment ** Device level data requires user's authorization
+  
+- name: Location API
+  description: geo-fencing and geo-tracking of a device
+
+
+paths:
+
+
+#########################################
+
+####### DATA Plane ###### 
+
+##########################################
+
+  /data_plane/aggregate/{ern}:
+    get:
+      tags:
+      - Data Plane API
+      description: Provides the agreggated data plane metrics, across MEC sessions, by MEC platform identfied as ern (edge resource number) 
+      responses:
+        "200":
+         description: ok
+  /data_plane/aggregate/{edgeComputeIP}:
+    get:
+      tags:
+      - Data Plane API
+      description: Provides the agreggated data plane metrics, across MEC sessions, by MEC compute server identfied by carrier IP
+      responses:
+        "200":
+         description: ok
+  /data_plane/aggregate/{edgeApplicationId}:
+      get:
+        tags:
+        - Data Plane API
+        description: Provides the agreggated data plane metrics, across MEC sessions, by application Id as  configured in service registry of EDS. The data will be pivoted based on IP and Port definition configured in service registry definitions
+        responses:
+          "200":
+           description: ok
+  /data_plane/device/latency/{userId}:
+    get:
+      tags:
+      - Data Plane API
+      description: Provides Round Trip Time (RTT) by client and server side
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/latency'
+
+  /data_plane/device/jitter/{userId}:
+    get:
+      tags:
+      - Data Plane API
+      description: Provides Jitter
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/jitter'
+
+
+  /data_plane/device/network_congestion/{userId}:
+    get:
+      tags:
+      - Data Plane API
+      description: Provides network congestion
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/network_congestion'
+
+
+###################################################
+
+
+
+##########   Radio Network API ####################
+
+
+##################################################
+  /rni/aggregate/celltower:
+    get:
+      tags:
+      - RNI API
+      description: Provides the aggregated radio network KPIs, across all the radio sessions, of a cell tower where the user is connected to.
+      parameters:
+      - name: userId
+        in: query
+        description: provide user IMSI or MDN
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/rni_aggregated'
+      servers:
+      - url: http://localhost:8091
+
+  /rni/aggregate/mecplatform:
+    get:
+      tags:
+      - RNI API
+      description: Provides the aggregated radio network KPIs, across all the radio sessions, of users connected to an edge platform identified by ern.
+      parameters:
+      - name: ern
+        in: query
+        description: provide ern of a mec platform for e.g us-east-1-
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/rni_aggregated'
+      servers:
+      - url: http://localhost:8091
+  /rni/device/signal_strength/{userId}:
+    get:
+      tags:
+      - RNI API
+      description: Provides RSRP, RSRQ, SNI values device is exeperiencing **1-1 with edgeai
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/signal_strength'
+      servers:
+      - url: http://localhost:8091
+
+  /rni/device/throughput/{userId}:
+    get:
+      tags:
+      - RNI API
+      description: Provides estimated downlink and uplink thorughput
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/throughput'
+
+  /rni/device/retransmission/{userId}:
+    get:
+      tags:
+      - RNI API
+      description: Provides downlink and uplink retransmission rate and volume 
+      parameters:
+      - name: userId
+        in: path
+        description: provide user IMSI or MDN
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userIdType
+        in: query
+        description: \"imsi\" if userId is IMSI or \"mdn\" if userId is MDN
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: aggregation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - FIFTEEN_MIN
+          - HOURLY
+          - DAILY
+      - name: startDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: start date
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/retransmission' 
+  /rni/policy:
+    post:
+      tags:
+      - RNI API
+      description: Intent based policy for monitoring radio network condition 
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/rni_policy'
+        required: true
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/policy_subscription_response'
+
+
+
+  /rni/policy/{policyId}:
+    put:
+      tags:
+      - RNI API
+      description: Intent based policy for monitoring radio network condition n 
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/rni_policy'
+        required: true
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/policy_subscription_response'
+    get:
+      tags:
+      - RNI API
+      description: Intent based policy for monitoring radio network condition 
+      parameters:
+        - name: policyId
+          in: path
+          description: subscription Id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/rni_policy'
+    delete:
+      tags:
+      - RNI API
+      description: Intent based policy for monitoring radio network condition 
+      parameters:
+        - name: policyId
+          in: path
+          description: subscription Id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: policy has been deleted
+
+
+
+  /rni/device/notification:
+    post:
+      tags:
+      - RNI API
+      description: Subscription for monitoring radio network condition of individual device. 
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/user_subscription'
+        required: true
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/user_subscription_response'
+
+
+  /rni/device/notification/{subscriptionId}:
+    put:
+      tags:
+      - RNI API
+      description: Subscription for monitoring radio network condition of individual device. 
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: subscription Id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/user_subscription'
+        required: true
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/user_subscription_response'
+    get:
+      tags:
+      - RNI API
+      description: Intent based API to notify application if rni condition  is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: subscription Id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: acceptable
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/rni_notification'
+    delete:
+      tags:
+      - RNI API
+      description: Intent based API to notify application if signal strength is degraded for last 15 min
+      parameters:
+      - name: subscriptionId
+        in: path
+        description: subscription Id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: acceptable
+
+                  
+
+components:
+  schemas:
+    latency:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        userId:
+          type: string
+        min_client_rtt:
+          type: number
+        min_server_rtt:
+          type: number
+        min_total_rtt:
+          type: number
+        max_client_rtt:
+          type: number
+        max_server_rtt:
+          type: number
+        max_total_rtt:
+          type: number
+        avg_client_rtt:
+          type: number
+        avg_server_rtt:
+          type: number
+        avg_total_rtt:
+          type: number
+
+    jitter:
+      type: object
+      properties:
+        aggregation_time:
+          type: number
+        userId:
+          type: string
+        jitter:
+          type: string
+
+
+
+    network_congestion:
+      type: object
+      properties:
+        aggregation_time:
+          type: number
+        userId:
+          type: string
+        qci_congestion:
+          type: number
+
+
+
+
+############ RNI Data models ##########
+    signal_strength:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        userId:
+          type: string
+        min_4g_rsrp:
+          type: number
+        max_4g_rsrp:
+          type: number
+        avg_4g_rsrp:
+          type: number
+        min_4g_rsrq:
+          type: number
+        max_4g_rsrq:
+          type: number
+        avg_4g_rsrq:
+          type: number
+        min_4g_sinr:
+          type: number
+        max_4g_sinr:
+          type: number
+        avg_4g_sinr:
+          type: number
+        min_5g_rsrp:
+          type: number
+        max_5g_rsrp:
+          type: number
+        avg_5g_rsrp:
+          type: number
+        min_5g_rsrq:
+          type: number
+        max_5g_rsrq:
+          type: number
+        avg_5g_rsrq:
+          type: number
+        min_5g_sinr:
+          type: number
+        max_5g_dl_sinr:
+          type: number
+        avg_5g_dl_sinr:
+          type: number
+
+    throughput:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        userId:
+          type: string
+        estimated_downlink_throughput:
+          type: number
+        estimated_uplink_throughput:
+          type: number
+
+
+    retransmission:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        userId:
+          type: string
+        dl_retransmission_rate:
+          type: number
+        dl_retransmission_volume_bytes:
+          type: number
+        ul_retransmission_rate:
+          type: number
+        ul_retransmission_volume_bytes:
+          type: number
+
+
+    rni_aggregated:
+      type: object
+      properties:
+        aggregation_time:
+          type: string
+        userId:
+          type: string
+        min_4g_rsrp:
+          type: number
+        max_4g_rsrp:
+          type: number
+        avg_4g_rsrp:
+          type: number
+        min_4g_rsrq:
+          type: number
+        max_4g_rsrq:
+          type: number
+        avg_4g_rsrq:
+          type: number
+        min_4g_sinr:
+          type: number
+        max_4g_sinr:
+          type: number
+        avg_4g_sinr:
+          type: number
+        min_5g_rsrp:
+          type: number
+        max_5g_rsrp:
+          type: number
+        avg_5g_rsrp:
+          type: number
+        min_5g_rsrq:
+          type: number
+        max_5g_rsrq:
+          type: number
+        avg_5g_rsrq:
+          type: number
+        min_5g_sinr:
+          type: number
+        max_5g_dl_sinr:
+          type: number
+        avg_5g_dl_sinr:
+          type: number
+        distinct_imsi_count:
+          type: number
+        dl_retransmission_rate:
+          type: number
+        ul_retransmission_rate:
+          type: number
+        dl_retransmission_volume_bytes:
+          type: number
+        endc_rate_duration:
+          type: number
+        5g_endc_add_failure_rate:
+          type: number
+        5g_endc_drops_rate:
+          type: number
+
+  
+
+    signal_strength_policy:
+      type: object
+      properties:
+        min_4g_rsrp_threshold:
+          type: number
+        min_4g_rsrq_threshold:
+          type: number
+        min_4g_sinr_threshold:
+          type: number
+        min_5g_rsrp_threshold:
+          type: number
+        min_5g_rsrq_threshold:
+          type: number
+        min_5g_sinr_threshold:
+          type: number
+
+    signal_strength_notification:
+      type: object
+      properties:
+  
+        avg_4g_rsrp:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_4g_rsrp_value:
+          type: number
+        avg_4g_rsrq:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_4g_rsrq_value:
+          type: number
+        avg_4g_sinr:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_4g_sinr_value:
+          type: number
+        avg_5g_rsrp:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_5g_rsrp_value:
+          type: number
+        avg_5g_rsrq:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_5g_rsrq_value:
+          type: number
+        avg_5g_sinr:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        avg_5g_sinr_value:
+          type: number
+
+
+    throughput_policy:
+       type: object
+       properties:
+         min_estimated_downlink_throughput:
+           type: number
+         min_estimated_uplink_throughput:
+           type: number
+
+    throughput_notification:
+      type: object
+      properties:
+        estimated_downlink_throughput:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        estimated_downlink_throughput_value:
+          type: number
+        estimated_uplink_throughput:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        estimated_uplink_throughput_value:
+          type: number
+
+    retransmission_policy:
+       type: object
+       properties:
+         max_dl_retransmission_rate:
+           type: number
+         max_ul_retransmission_rate:
+           type: number
+
+    restransmission_notification:
+      type: object
+      properties:
+        dl_retransmission_rate:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        dl_retransmission_rate_value:
+          type: number
+        ul_retransmission_rate:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        ul_retransmission_rate_value:
+          type: number
+
+    endc_policy:
+       type: object
+       properties:
+         max_5g_endc_add_failure_rate:
+           type: number
+         max_5g_endc_drops_rate:
+           type: number
+
+    endc_notification:
+      type: object
+      properties:
+        max_5g_endc_add_failure_rate:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        max_5g_endc_add_failure_rate_value:
+          type: number
+        max_5g_endc_drops_rate:
+          type: string
+          enum:
+          - acceptable
+          - unacceptable
+        max_5g_endc_drops_rate_value:
+          type: number
+
+    rni_policy:
+     type: object
+     properties:
+       applicationId:
+         type: string
+       notificationtype:
+          type: string
+          enum:
+          - notify
+          - track
+       signal_strength: 
+         type: object
+         $ref: '#/components/schemas/signal_strength_policy'
+       throughput:
+         type: object
+         $ref: '#/components/schemas/throughput_policy'
+       retransmission:
+         type: object
+         $ref: '#/components/schemas/retransmission_policy'
+       endc:
+         type: object
+         $ref: '#/components/schemas/endc_policy'       
+       callback_url: 
+           type: string
+
+    rni_notification:
+      type: object
+      properties:
+        signal_strength:
+          type: object
+          $ref: '#/components/schemas/signal_strength_notification'
+
+        throughput:
+          type: object
+          $ref: '#/components/schemas/throughput_notification'
+
+        retransmission:
+          type: object
+          $ref: '#/components/schemas/restransmission_notification'
+        endc:
+         type: object
+         $ref: '#/components/schemas/endc_notification'  
+          
+
+
+
+
+
+    policy_subscription_response:
+      type: object
+      properties:
+        policyId:
+          type: string
+        category:
+          type: string
+          enum:
+            - rni
+            - dataPerf
+        notificationtype:
+          type: string
+          enum:
+            - notify
+            - track
+
+    user_subscription:
+       type: object
+       properties:
+         userId:
+           type: string
+         usertype:
+           type: string
+         policyId:
+           type: string
+         monitoring_frequency:
+          enum:
+            - FIFTEEN_MIN
+            - HOURLY
+            - DAILY
+
+    user_subscription_response:
+       type: object
+       properties:
+         subscriptionId:
+           type: string
+         policyId:
+           type: string
+         monitoring_frequency:
+          enum:
+            - FIFTEEN_MIN
+            - HOURLY
+            - DAILY
+
+
+
+
+
+
+       
+
+        
+         
